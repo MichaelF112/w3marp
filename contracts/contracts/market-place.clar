@@ -2,10 +2,10 @@
 (define-constant ERR-ITEM-ALREADY-SOLD 1001)
 (define-constant ERR-INSUFFICIENT-FUNDS 1002)
 (define-constant ERR-NOT-BUYER 1003)
-(define-constant ERR-ITEM-ALREADY_DELIVERED 1004)
+(define-constant ERR-ITEM-ALREADY-DELIVERED 1004)
 (define-constant FEE_PERCENTAGE 1)
 
-(define-constant INTERMEDIARY-WALLET ST2NSQSBAR746ZA5JRW8HVREGV3A9C1Q958P3BPPD)
+(define-constant INTERMEDIARY-WALLET 'ST2NSQSBAR746ZA5JRW8HVREGV3A9C1Q958P3BPPD)
 
 (define-map items
   item-id
@@ -92,12 +92,12 @@
   (ok
     (fold
       (lambda (entry result)
-        (let ((item-id (fst entry))
-              (item-data (snd entry)))
+        (let ((item-id (get key entry))  ;; Extract the key (item-id)
+              (item-data (get value entry)))  ;; Extract the value (item-data)
           (if (is-eq (get seller item-data) tx-sender)
               (cons {id: item-id, item: item-data} result)
               result)))
-      '() ;; Start with an empty list
+      '()
       (map entries items))))
 
 ;; View sold but undelivered items by the current user
@@ -105,13 +105,12 @@
   (ok
     (fold
       (lambda (entry result)
-        (let ((item-id (fst entry))
-              (item-data (snd entry)))
+        (let ((item-id (get key entry))  ;; Extract the key (item-id)
+              (item-data (get value entry)))  ;; Extract the value (item-data)
           (if (and
                 (is-eq (get seller item-data) tx-sender)
                 (is-eq (get state item-data) "purchased"))
               (cons {id: item-id, item: item-data} result)
               result)))
-      '() ;; Start with an empty list
+      '()
       (map entries items))))
-
